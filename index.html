@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trắc nghiệm Câu 15</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .question {
+      text-align: left;
+    }
+    .correct {
+      background-color: #c8e6c9;
+    }
+    .incorrect {
+      background-color: #ffcdd2;
+    }
+    .submit-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #audioBlock.disabled {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Câu 15 (4 điểm)</h2>
+<p><strong>Listen to a man and a woman discussing the changes in the workplace.</strong> You can listen to the discussion twice. Then choose who expressed each opinion.</p>
+
+<!-- Audio Player -->
+<div id="audioBlock">
+  <audio id="audioPlayer" controls>
+    <source src="audio.mp3" type="audio/mp3">
+    Trình duyệt của bạn không hỗ trợ audio.
+  </audio>
+  <p>Lượt nghe còn lại: <span id="playCount">2</span></p>
+</div>
+
+<!-- Quiz Table -->
+<table id="quizTable">
+  <thead>
+    <tr>
+      <th class="question">Ý kiến</th>
+      <th>W</th>
+      <th>M</th>
+      <th>B</th>
+    </tr>
+  </thead>
+  <tbody id="quizBody"></tbody>
+</table>
+
+<button class="submit-button" onclick="submitQuiz()" id="submitBtn">Nộp bài</button>
+<p id="result"></p>
+
+<script>
+  const audio = document.getElementById('audioPlayer');
+  const audioBlock = document.getElementById('audioBlock');
+  const submitBtn = document.getElementById('submitBtn');
+  let playTimes = 0;
+  let submitted = false;
+
+  const questions = [
+    {
+      id: "q1",
+      text: "Continuity is important when planning a career",
+      correct: "M"
+    },
+    {
+      id: "q2",
+      text: "Job security cannot be guaranteed",
+      correct: "W"
+    },
+    {
+      id: "q3",
+      text: "Job satisfaction is important for motivator",
+      correct: "B"
+    },
+    {
+      id: "q4",
+      text: "Technological improvement is good for the economy",
+      correct: "M"
+    }
+  ];
+
+  // Fisher-Yates Shuffle
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  function renderQuestions() {
+    shuffleArray(questions);
+    const tbody = document.getElementById('quizBody');
+    tbody.innerHTML = '';
+    questions.forEach(q => {
+      const row = document.createElement('tr');
+      row.setAttribute("data-id", q.id);
+      row.innerHTML = `
+        <td class="question">${q.text}</td>
+        <td><input type="radio" name="${q.id}" value="W"></td>
+        <td><input type="radio" name="${q.id}" value="M"></td>
+        <td><input type="radio" name="${q.id}" value="B"></td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  audio.addEventListener('play', () => {
+    playTimes++;
+    if (playTimes > 2) {
+      audio.pause();
+      alert("Bạn chỉ được nghe tối đa 2 lần!");
+    } else {
+      document.getElementById('playCount').textContent = 2 - playTimes;
+    }
+  });
+
+  function submitQuiz() {
+    if (submitted) return;
+    submitted = true;
+
+    // Dừng và ẩn audio
+    audio.pause();
+    audio.currentTime = 0;
+    audioBlock.classList.add("disabled");
+
+    let score = 0;
+    questions.forEach(q => {
+      const radios = document.getElementsByName(q.id);
+      let userAnswer = null;
+      for (const r of radios) {
+        if (r.checked) userAnswer = r.value;
+        r.disabled = true; // Khoá lựa chọn
+      }
+
+      const row = document.querySelector(`tr[data-id='${q.id}']`);
+      if (userAnswer === q.correct) {
+        score++;
+        row.classList.add("correct");
+      } else {
+        row.classList.add("incorrect");
+      }
+    });
+
+    document.getElementById("result").innerHTML = `<strong>Kết quả:</strong> ${score}/4 câu đúng.`;
+    submitBtn.disabled = true;
+  }
+
+  // Khi tải lại trang
+  window.onload = renderQuestions;
+</script>
+
+</body>
+</html>
